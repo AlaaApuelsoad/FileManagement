@@ -1,0 +1,53 @@
+Java File Upload Notes + Download vs Review
+
+1. Difference Between Files.copy() and Files.write()
+
+Files.copy(): - Copies data from an InputStream or another file. - Best
+for file uploads because MultipartFile provides an InputStream. -
+Efficient for large files. - Streams data without loading entire file
+into memory. - Preserves binary integrity (PDF, images, videos).
+
+Files.write(): - Writes a byte[] array directly to a file. - Requires
+reading entire file into memory using file.getBytes(). - Not efficient
+for large files; may cause OutOfMemoryError. - Best for small text
+files.
+
+Summary: - Use Files.copy() for uploads. - Use Files.write() for small
+in-memory content.
+
+2. Download vs Review (Preview) Endpoints
+
+A browser handles file responses based on two things: 1.
+Content-Disposition header (attachment vs inline) 2. Content-Type header
+(MIME type)
+
+Download: - Use Content-Disposition: attachment - Intention: The file
+should be saved by the user. - The browser may still open files it can
+render (like PDF or images).
+
+Review/Preview: - Use Content-Disposition: inline - Browser displays
+file if supported (PDF, images, videos). - Requires correct Content-Type
+(e.g., application/pdf).
+
+Why “attachment” still opens the file: - Browsers prefer to display
+files they know (PDF, JPG, MP4). - Content-Disposition is a suggestion.
+
+Files that almost always download: - ZIP, EXE, DOCX, XLSX, some CSVs.
+
+To force file download 100%: - Use Content-Type:
+application/octet-stream - Use Content-Disposition: attachment - Add:
+X-Content-Type-Options: nosniff
+
+Download vs Review Summary Table:
+
+  ----------------------------------------------------------------------------
+  Purpose          Header Setup                     Browser Behavior
+  ---------------- -------------------------------- --------------------------
+  Download         attachment + correct MIME        May open if browser
+                                                    supports the file
+
+  Review/Preview   inline + correct MIME            Displays file in browser
+
+  Force download   attachment + octet-stream +      Always downloads
+                   nosniff                          
+  ----------------------------------------------------------------------------
